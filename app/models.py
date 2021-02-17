@@ -8,6 +8,7 @@ Base = declarative_base()
 Base.query = session.query_property()
 
 
+
 class Ads(Base):
 
     __tablename__ = 'ads'
