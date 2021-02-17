@@ -4,19 +4,23 @@ import app
 
 
 def test_get_ad():
-    res = app.client.get('/get_ad/1')
+    data = {"id": "1"}
+    res = app.client.post('/get_ad', json=data)
     assert res.status_code == 200
     assert list(res.get_json().keys()) == ["description", "id", "name", "price"]
     assert res.get_json()["id"] == 1
 
+
 def test_get_ad1():
-    res = app.client.get('/get_ad/1?fields=True')
+    data = {"id": "500", "fields": True}
+    res = app.client.post('/get_ad', json=data)
     assert res.status_code == 200
     assert list(res.get_json().keys()) == ["description", "id", "main_url", "name", "price",  "url2", "url3"]
     assert res.get_json()["id"] == 1
 
 def test_get_ad_bad_request():
-    res = app.client.get('/get_ad/50')
+    data = {"id": "500"}
+    res = app.client.post('/get_ad', json=data)
     assert res.status_code == 404
     assert res.get_json() == {
         "error": "404 Not Found: Ad not found"
@@ -31,41 +35,31 @@ def test_get_ads():
     res = app.client.get('/get_ads')
     assert res.status_code == 400
 
-    res = app.client.get('/get_ads?page=1')
+    data = {"page": "1"}
+    res = app.client.post('/get_ads', json=data)
     assert res.get_json()[0] == "page 1. Ads from 1 to 10"
     assert len(res.get_json()[1]) <= 10
 
 
 def test_get_ads_sort_price_asc():
-    res = app.client.get('/get_ads?page=1&sort_price=asc')
+    data = {"page": "1", "sort": "price_asc"}
+    res = app.client.post('/get_ads', json=data)
     assert res.get_json()[0] == "page 1. Ads from 1 to 10"
     assert len(res.get_json()[1]) <= 10
     assert res.get_json()[1][1]["price"] <= res.get_json()[1][2]["price"]
 
 
 def test_get_ads_sort_price_desc():
-    res = app.client.get('/get_ads?page=1&sort_price=desc')
+    data = {"page": "1", "sort": "price_desc"}
+    res = app.client.post('/get_ads', json=data)
     assert res.get_json()[0] == "page 1. Ads from 1 to 10"
     assert len(res.get_json()[1]) <= 10
     assert res.get_json()[1][1]["price"] >= res.get_json()[1][2]["price"]
 
 
-def test_get_ads_sort_data_bad_request():
-    res = app.client.get('/get_ads?page=1&sort_data=ascsdf')
-    assert res.status_code == 400
-    assert res.get_json() == {
-    "error": "400 Bad Request: incorrect sorting values entered or do not enter a value pagination"
-}
-
-def test_get_ads_sort_price_bad_request():
-    res = app.client.get('/get_ads?page=1&sort_data=ascsdf')
-    assert res.status_code == 400
-    assert res.get_json() == {
-    "error": "400 Bad Request: incorrect sorting values entered or do not enter a value pagination"
-}
-
 def test_get_ads_bad_request():
-    res = app.client.get('/get_ads')
+    data = {"page": "1", "sort": "asd"}
+    res = app.client.post('/get_ads', json=data)
     assert res.status_code == 400
     assert res.get_json() == {
     "error": "400 Bad Request: incorrect sorting values entered or do not enter a value pagination"
